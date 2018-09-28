@@ -34,7 +34,7 @@ body {
   <body>
     <nav class="navbar bg-dark navbar-dark navbar-expand-sm ">
       <div class="container">
-        <a class="navbar-brand" href="/index.html">Pizza Value Calculator</a>
+        <a class="navbar-brand" href="/index.html">Pizza Value Calculator <small><span class="badge badge-warning badge-pill">Alpha</span></small></a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#toggleNav"><span class="navbar-toggler-icon"></span></button>
         <div class="collapse navbar-collapse " id="toggleNav">
           <div class="navbar-nav ml-auto">
@@ -76,9 +76,28 @@ body {
     var deals = 0;
     addDeal(2);
   function recalc(dealNum) {
-    var qty = $('input.qty').map(function() {return this.value|| 0}).get();
-    var price = $('input.price').map(function() {return this.value ||0 }).get();
-    var size = $('input.size').map(function() {return this.value ||0 }).get();
+    var qty = $('input.qty').map(function() {
+      if (isFinite(this.value) && this.value>0){
+        $( this ).removeClass("border-danger");
+        return this.value;
+      }
+      $( this ).addClass("border-danger");
+      return 0;
+      }).get();
+    var price = $('input.price').map(function() {if (isFinite(this.value) && this.value>0){
+        $( this ).removeClass("border-danger");
+        return this.value;
+      }
+      $( this ).addClass("border-danger");
+      return 0;
+     }).get();
+    var size = $('input.size').map(function() {if (isFinite(this.value) && this.value>0){
+        $( this ).removeClass("border-danger");
+        return this.value;
+      }
+      $( this ).addClass("border-danger");
+      return 0;
+      }).get();
     var area = $(size).map(function(i) {return (size[i]/2)*(size[i]/2)*3.14}).get();
     var pricePer = $(qty).map(function(i) {return Number(area[i]*qty[i]/price[i])}).get();
     var areas = $('.areaText').map(function() {return $(this)}).get();
@@ -87,7 +106,7 @@ body {
     var values = $('.valueText').map(function() {return $(this)}).get();
 
     $(qty).map(function(i) {if (pricePer[i] > 0 && pricePer[i] != Infinity) { values[i].html('<span class="val">'+pricePer[i].toFixed(2) +'</span>' +' in<sup>2</sup>/$')}});
-    
+    var totals=[];
     for (var i=1;i<=deals;i++) {
       var qtyTotal=0;
     $('#deal'+i+' input.qty').map(function() {qtyTotal+= Number(this.value)}).get();
@@ -105,17 +124,42 @@ body {
     
     $('#deal'+i+' .areaTotal').html('<span class="val">'+areaTotal.toFixed(2)+'</span>' +' in<sup>2</sup>');
     //
-    $('#deal'+i+' .valueTotal').html('<span class="val">'+(qtyTotal*areaTotal/priceTotal).toFixed(2) +'</span>' +' in<sup>2</sup>/$');
+      var totalArea =qtyTotal*areaTotal/priceTotal;
+    if (isFinite(totalArea)){
+    $('#deal'+i+' .valueTotal').html('<span class="val">'+totalArea.toFixed(2) +'</span>' +' in<sup>2</sup>/$');}
+      
+    totals.push(totalArea);
 
+  }
+  var max=0;
+  var countNotZero=0;
+  var ind;
+  for (var i=0;i<deals;i++) {
+  if (isFinite(totals[i])&&totals[i]>0) {
+    countNotZero++;
+    if (totals[i] > max) {
+      max = totals[i];
+      ind = i+1; 
+      console.log(ind);
+    }
+  }
+  if (countNotZero>=2) {
+    for (var i=0;i<=deals;i++) {
+      $('.dealCard'+i+' .badge').remove();
+      $('.dealCard'+i).removeClass('border-success');
 
+    }
+    $('.dealCard'+ind+' .card-title').append(' <span class="badge badge-success badge-pill">Best Deal!</span>');
+    $('.dealCard'+ind).addClass('border-success');
 
+  }
   }}
   function addPizza(numToAdd,dealNum) {
     numToAdd = numToAdd || 1;
     currentRow=$("#deal"+dealNum+" > tbody > tr").length;
     for (var i =0; i <numToAdd; i++) {
       $('#deal' + dealNum+" > tbody>tr:last").before(
-       ' <tr id="pizza'+currentRow+'"><th scope="row">'+currentRow+'</th><td><input class="form-control col-4 qty" type="text" placeholder=""></td><td> <div class="input-group"><input class="form-control col-4 size" type="text"><div class="input-group-append"><span class="input-group-text">"</span></div> </div></div> </td><td><div class="input-group"><div class="input-group-prepend"><span class="input-group-text">$</span></div><input class="form-control col-4 price" type="text" placeholder=""></div></td><td class="areaText"> <span class="val">0.00 </span>in<sup>2</sup></td><td class="valueText"> <span class="val">0.00 </span>in<sup>2</sup>/$</td></tr>'
+       ' <tr id="pizza'+currentRow+'"><th scope="row">'+currentRow+'</th><td><input class="form-control col-4 qty" type="text" placeholder=""></td><td> <div class="input-group"><input class="form-control col-4 size" type="text"><div class="input-group-append"><span class="input-group-text">"</span></div> </div></div> </td><td><div class="input-group"><div class="input-group-prepend"><span class="input-group-text">$</span></div><input class="form-control col-4 price" type="text" placeholder=""></div></td><td class="areaText"> <span class="val">0.00 </span>in<sup>2</sup></td><td class="valueText"> <span class="val">0.00 </span>in<sup>2</sup>/$</td><td><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></td></tr>'
       )
       $('#deal' + dealNum+' > tbody>#pizza'+currentRow+' input').blur(function() {recalc(dealNum)}).keyup(function() {recalc(dealNum);});
   
@@ -125,17 +169,15 @@ body {
     numToAdd = numToAdd || 1;
     for (var i =0; i <numToAdd; i++) { 
       deals+=1
-      $("#mainContainer").append('<div class=" card mt-4"><div class="card-body"><h5 class="card-title text-center"> Deal '+deals+'</h5><div class="table-responsive-lg"><table class="table" id="deal'+deals+'"><thead class=""><tr><th scope="col">Item</th><th scope="col">How many?</th><th scope="col">Size</th><th scope="col">Price</th><th scope="col">Area</th><th scope="col">Value</th> </tr>  </thead> <tbody><tr> <th scope="row">Total</th><td class="font-weight-bold qtyTotal">0</td><td class="font-weight-bold"></td><td class="font-weight-bold priceTotal">$0.00</td><td class="font-weight-bold areaTotal">0.00 in<sup>2</sup></td><td class="font-weight-bold valueTotal">0.00 in<sup>2</sup>/$</td></tr></tbody></table></div></div><div class="card-footer"><button type="button" class="btn btn-sm btn-primary" id="addPizza'+deals+'"><i class="fas fa-plus-circle"></i> Add New Pizza</button><button type="button" class="btn btn-sm btn-danger float-right"><i class="fas fa-trash"></i> Delete Deal</button></div></div>');
+      $("#mainContainer").append('<div class="dealCard'+deals+' card mt-4"><div class="card-body"><h5 class="card-title text-center"> Deal '+deals+'</h5><div class="table-responsive-lg"><table class="table" id="deal'+deals+'"><thead class=""><tr><th scope="col">Item</th><th scope="col">How many?</th><th scope="col">Size</th><th scope="col">Price</th><th scope="col">Area</th><th scope="col">Value</th> <th></th></tr>  </thead> <tbody><tr class="table-default"> <th scope="row">Total</th><td class="font-weight-bold qtyTotal">0</td><td class="font-weight-bold"></td><td class="font-weight-bold priceTotal">$0.00</td><td class="font-weight-bold areaTotal">0.00 in<sup>2</sup></td><td class="font-weight-bold valueTotal">0.00 in<sup>2</sup>/$</td><td></td></tr></tbody></table></div></div><div class="card-footer"><button type="button" class="btn btn-sm btn-primary" id="addPizza'+deals+'"><i class="fas fa-plus-circle"></i> Add New Pizza</button><button type="button" class="btn btn-sm btn-danger float-right"><i class="fas fa-trash"></i> Delete Deal</button></div></div>');
      addPizza(1,deals);
      $("#addPizza"+deals).click(function(event) {
     addPizza(1,event.target.id.substr(8));
   });
  }}
-
-  
   $("#addDeal").click(function(event) {
     addDeal(1);
-  })
+  });
   
 
   </script>
