@@ -157,19 +157,40 @@ body {
   function addPizza(numToAdd,dealNum) {
     numToAdd = numToAdd || 1;
     currentRow=$("#deal"+dealNum+" > tbody > tr").length;
+    console.log('currentLength '+ currentRow);
     for (var i =0; i <numToAdd; i++) {
       $('#deal' + dealNum+" > tbody>tr:last").before(
-       ' <tr id="pizza'+currentRow+'"><th scope="row">'+currentRow+'</th><td><input class="form-control col-4 qty" type="text" placeholder=""></td><td> <div class="input-group"><input class="form-control col-4 size" type="text"><div class="input-group-append"><span class="input-group-text">"</span></div> </div></div> </td><td><div class="input-group"><div class="input-group-prepend"><span class="input-group-text">$</span></div><input class="form-control col-4 price" type="text" placeholder=""></div></td><td class="areaText"> <span class="val">0.00 </span>in<sup>2</sup></td><td class="valueText"> <span class="val">0.00 </span>in<sup>2</sup>/$</td><td><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></td></tr>'
+       ' <tr id="pizza'+currentRow+'"><th scope="row" class="numberText">'+currentRow+'</th><td><input class="form-control col-4 qty" type="text" placeholder=""></td><td> <div class="input-group"><input class="form-control col-4 size" type="text"><div class="input-group-append"><span class="input-group-text">"</span></div> </div></div> </td><td><div class="input-group"><div class="input-group-prepend"><span class="input-group-text">$</span></div><input class="form-control col-4 price" type="text" placeholder=""></div></td><td class="areaText"> <span class="val">0.00 </span>in<sup>2</sup></td><td class="valueText"> <span class="val">0.00 </span>in<sup>2</sup>/$</td><td><button type="button" class="close" data-dismiss="alert" id="pizzaClose'+currentRow+'" aria-label="Close"><span aria-hidden="true">&times;</span></td></tr>'
       )
+        renumberDeal(dealNum);
+      $("#pizzaClose"+currentRow).click(function(event) {
+        deletePizza(dealNum,this.id.substr(10));
+      });
       $('#deal' + dealNum+' > tbody>#pizza'+currentRow+' input').blur(function() {recalc(dealNum)}).keyup(function() {recalc(dealNum);});
   
     }
+  }
+  function renumberDeal(deal) {
+    var qty = $('#deal'+deal +' .numberText').map(function() {
+      return $(this);
+      }).get();
+    $(qty).map(function(n){
+      qty[n].html(n+1);
+      
+    }).get();
+  }
+  function deletePizza(deal,pizza) {
+   $('#deal'+deal+' #pizza' + pizza).remove(); 
+   renumberDeal(deal); 
+  }
+  function deleteDeal(deal) {
+
   }
   function addDeal(numToAdd) {
     numToAdd = numToAdd || 1;
     for (var i =0; i <numToAdd; i++) { 
       deals+=1
-      $("#mainContainer").append('<div class="dealCard'+deals+' card mt-4"><div class="card-body"><h5 class="card-title text-center"> Deal '+deals+'</h5><div class="table-responsive-lg"><table class="table" id="deal'+deals+'"><thead class=""><tr><th scope="col">Item</th><th scope="col">How many?</th><th scope="col">Size</th><th scope="col">Price</th><th scope="col">Area</th><th scope="col">Value</th> <th></th></tr>  </thead> <tbody><tr class="table-default"> <th scope="row">Total</th><td class="font-weight-bold qtyTotal">0</td><td class="font-weight-bold"></td><td class="font-weight-bold priceTotal">$0.00</td><td class="font-weight-bold areaTotal">0.00 in<sup>2</sup></td><td class="font-weight-bold valueTotal">0.00 in<sup>2</sup>/$</td><td></td></tr></tbody></table></div></div><div class="card-footer"><button type="button" class="btn btn-sm btn-primary" id="addPizza'+deals+'"><i class="fas fa-plus-circle"></i> Add New Pizza</button><button type="button" class="btn btn-sm btn-danger float-right"><i class="fas fa-trash"></i> Delete Deal</button></div></div>');
+      $("#mainContainer").append('<div class="dealCard'+deals+' card mt-4"><div class="card-body"><h5 class="card-title text-center"> Deal '+deals+'</h5><div class="table-responsive-lg"><table class="table" id="deal'+deals+'"><thead class=""><tr><th scope="col">Item</th><th scope="col">How many?</th><th scope="col">Size</th><th scope="col">Price</th><th scope="col">Area</th><th scope="col">Value</th> <th></th></tr>  </thead> <tbody><tr class="table-default"> <th scope="row">Total</th><td class="font-weight-bold qtyTotal">0</td><td class="font-weight-bold"></td><td class="font-weight-bold priceTotal">$0.00</td><td class="font-weight-bold areaTotal">0.00 in<sup>2</sup></td><td class="font-weight-bold valueTotal">0.00 in<sup>2</sup>/$</td><td></td></tr></tbody></table></div></div><div class="card-footer"><button type="button" class="btn btn-sm btn-primary" id="addPizza'+deals+'"><i class="fas fa-plus-circle"></i> Add New Pizza</button><button type="button" class="btn btn-sm btn-danger disabled float-right"><i class="fas fa-trash"></i> Delete Deal</button></div></div>');
      addPizza(1,deals);
      $("#addPizza"+deals).click(function(event) {
     addPizza(1,event.target.id.substr(8));
@@ -178,6 +199,8 @@ body {
   $("#addDeal").click(function(event) {
     addDeal(1);
   });
+  
+  
   
 
   </script>
