@@ -1,6 +1,6 @@
 {
-    "name": "",
-    "short_name": "",
+    "name": "Pizza Deal",
+    "short_name": "Pizza Deal",
     "icons": [
         {
             "src": "/android-chrome-96x96.png",
@@ -8,7 +8,7 @@
             "type": "image/png"
         }
     ],
-    "theme_color": "#ffffff",
-    "background_color": "#ffffff",
+    "theme_color": "#2d89ef",
+    "background_color": "#2d89ef",
     "display": "standalone"
 }
